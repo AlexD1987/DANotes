@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "dakeep-7d944": {
+      "hosting": {
+        "DAKeep": [
+          "dakeep-7d944"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "dakeep-7d944"
+  }
+}
