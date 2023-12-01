@@ -16,13 +16,24 @@ export class NoteListComponent {
 
   }
 
-  getList(): Note [] {
-    if (this.status == "trash") {
-      return this.noteService.trashNotes;
+  getList(): Note[] {
+    let notesToDisplay: Note[] = [];
+
+    if (this.status === "trash") {
+      notesToDisplay = this.noteService.trashNotes;
     } else {
-      return this.noteService.normalNotes;
+      const allNotes = this.noteService.normalNotes;
+
+      if (this.favFilter === "all") {
+        notesToDisplay = allNotes;
+      } else if (this.favFilter === "fav") {
+        // Nur die Notizen mit marked === true filtern
+        notesToDisplay = allNotes.filter(note => note.marked === true);
+      }
     }
+    return notesToDisplay;
   }
+
 
   changeFavFilter(filter:"all" | "fav"){
     this.favFilter = filter;
