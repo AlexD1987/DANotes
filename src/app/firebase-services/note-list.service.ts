@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, doc, collectionData, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, collectionData, onSnapshot, addDoc, updateDoc, deleteDoc, limit, query, orderBy } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Note } from '../interfaces/note.interface';
 
@@ -22,14 +22,14 @@ export class NoteListService {
   async addNote(note: Note, colId: "notes" | "trash") {
     if (colId == "notes") {
       await addDoc(this.getNotesRef(), note).catch(
-        (err) =>  { console.error(err) }
-      ). then (
+        (err) => { console.error(err) }
+      ).then(
         (docRef) => { console.log("Document written with ID: ", docRef?.id); }
       )
     } else {
       await addDoc(this.getTrashRef(), note).catch(
-        (err) =>  { console.error(err) }
-      ). then (
+        (err) => { console.error(err) }
+      ).then(
         (docRef) => { console.log("Document written with ID: ", docRef?.id); }
       )
     }
@@ -41,18 +41,18 @@ export class NoteListService {
       await updateDoc(docRef, this.getCleanJson(note)).catch(
         (err) => { console.log(err) }
       ).then(
-        () => {}
+        () => { }
       );
     }
   }
 
   async deleteNote(colId: "notes" | "trash", docId: string) {
     await deleteDoc(this.getSingleNoteRef(colId, docId)).catch(
-      (err) => {console.log(err)}
+      (err) => { console.log(err) }
     )
   }
 
-  getCleanJson(note:Note) {
+  getCleanJson(note: Note) {
     return {
       type: note.type,
       title: note.title,
@@ -95,11 +95,22 @@ export class NoteListService {
   }
 
   subNotesList() {
-    return onSnapshot(this.getNotesRef(), (list) => {
+    const q = query(this.getNotesRef(), orderBy("title"), limit(20));
+    return onSnapshot(q, (list) => {
       this.normalNotes = [];
       list.forEach(element => {
         this.normalNotes.push(this.setNoteObject(element.data(), element.id));
-        console.log(this.normalNotes);
+      });
+      list.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          console.log("New note: ", change.doc.data());
+        }
+        if (change.type === "modified") {
+          console.log("Modified note: ", change.doc.data());
+        }
+        if (change.type === "removed") {
+          console.log("Removed note: ", change.doc.data());
+        }
       });
     });
   }
@@ -116,6 +127,4 @@ export class NoteListService {
     return doc(collection(this.firestore, colId), docId);
 
   }
-
-
 }

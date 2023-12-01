@@ -27,7 +27,6 @@ export class NoteListComponent {
       if (this.favFilter === "all") {
         notesToDisplay = allNotes;
       } else if (this.favFilter === "fav") {
-        // Nur die Notizen mit marked === true filtern
         notesToDisplay = allNotes.filter(note => note.marked === true);
       }
     }
@@ -48,6 +47,4 @@ export class NoteListComponent {
     }
     this.getList();
   }
-
-
 }
